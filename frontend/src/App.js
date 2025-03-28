@@ -5,8 +5,8 @@ import Modal from './Page/Modal.jsx';
 
 const proto = require("./proto/database_service_grpc_web_pb.js"); // Import gRPC client
 const messages = require("./proto/database_service_pb.js");
-//console.log(proto);
-const client = new proto.DatabaseServiceClient("http://localhost:8080", null, null);
+console.log(process.env.REACT_APP_BACKEND_URL);
+const client = new proto.DatabaseServiceClient(process.env.REACT_APP_BACKEND_URL, null, null);
 function App() {
   const [records, setRecords] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);

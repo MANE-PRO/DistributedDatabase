@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
+    mysql-client \
     build-essential \
     cmake \
     git \
@@ -16,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     curl \
     ca-certificates \
+    libprotobuf-dev \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/* 
 
 # Set working directory

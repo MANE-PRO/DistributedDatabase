@@ -3,6 +3,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <cstdlib>
 #include <mysql/mysql.h> // MySQL
 
 using grpc::Server;
@@ -14,16 +15,13 @@ std::mutex db_mutex;
 
 class DatabaseServiceImpl final : public DatabaseService::Service {
 private:
-    //pqxx::connection pg_conn{ "dbname=test user=postgres password=postgres host=localhost" };
     MYSQL* mysql_conn1;
     MYSQL* mysql_conn2;
 
     int hash(std::string id){
-        std::cout << id << std::endl;
         int h = 0;
         for(int i = 0; i < id.length(); i++)
             h = h ^ id[i];
-        std::cout << h % 2 << std::endl;
         return h % 2;
     }
 
@@ -36,17 +34,23 @@ public:
         if (mysql_conn1 == NULL || mysql_conn2 == NULL) {
             std::cerr << "mysql_init() failed\n";
         }
-
-        if(mysql_real_connect(mysql_conn1, "localhost", "root", "", "record1", 3306, nullptr, 0) == NULL){
+        const char* MYSQL_HOST = std::getenv("MYSQL_HOST");
+        const char* MYSQL_US = std::getenv("MYSQL_USER");
+        const char* MYSQL_PASSWORD = std::getenv("MYSQL_PASSWORD");
+        const char* MYSQL_DATABASE1 = std::getenv("MYSQL_DATABASE1");
+        const char* MYSQL_DATABASE2 = std::getenv("MYSQL_DATABASE2");
+        std::cout << MYSQL_DATABASE2 << std::endl;
+        if(mysql_real_connect(mysql_conn1, MYSQL_HOST, MYSQL_US, MYSQL_PASSWORD, MYSQL_DATABASE1, 3306, nullptr, 0) == NULL){
             std::cerr << "mysql_real_connect() failed for record1\n";
             std::cerr << "Error: " << mysql_error(mysql_conn1) << "\n";
             mysql_close(mysql_conn1);
         }
-        if(mysql_real_connect(mysql_conn2, "localhost", "root", "", "record2", 3306, nullptr, 0) == NULL){
+        if(mysql_real_connect(mysql_conn2, MYSQL_HOST, MYSQL_US, MYSQL_PASSWORD, MYSQL_DATABASE2, 3306, nullptr, 0) == NULL){
             std::cerr << "mysql_real_connect() failed for record2\n";
             std::cerr << "Error: " << mysql_error(mysql_conn2) << "\n";
             mysql_close(mysql_conn2);
         }
+        std::cout << mysql_conn1 << " " << mysql_conn2 << std::endl;
 
     }
 
@@ -58,7 +62,6 @@ public:
     Status GetRecords(ServerContext* context, const StreamRequest* request, RecordList* response) override {
         RecordList record_list;
         std::lock_guard<std::mutex> lock(db_mutex);
-    
         try {
             // MySQL Fetch for first table
             mysql_query(mysql_conn1, "SELECT id, name FROM record");
@@ -87,7 +90,6 @@ public:
             std::cerr << "Error fetching records: " << e.what() << std::endl;
             return Status::CANCELLED;
         }
-    
         return Status::OK;
     }
     
@@ -104,6 +106,7 @@ public:
             if(hash(id) == 0){
                 std::string mysql_query_str = "INSERT INTO record (id, name) VALUES ('" + request->id() + "', '" + request->name() + "')";
                 mysql_query(mysql_conn1, mysql_query_str.c_str());
+
             }
             else{
                 std::string mysql_query_str2 = "INSERT INTO record (id, name) VALUES ('" + request->id() + "', '" + request->name() + "')";
@@ -148,7 +151,7 @@ public:
 };
 
 void RunServer() {
-    std::string server_address("127.0.0.1:50052");
+    std::string server_address("0.0.0.0:50052");
     DatabaseServiceImpl service;
     
     ServerBuilder builder;

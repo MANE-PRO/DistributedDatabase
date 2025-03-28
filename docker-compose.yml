@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Frontend (React app)
+  frontend:
+    build: ./frontend  # Make sure your React app is in the "frontend" directory
+    container_name: react-frontend
+    ports:
+      - "3000:3000"  # Expose port 3000 for React
+    depends_on:
+      - envoy
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080  # Frontend can access backend through Envoy
+
+  # Backend (Your backend app)
+  backend:
+    build: ./backend  # Make sure your backend app is in the "backend" directory
+    container_name: backend-app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: fdsrwtwdcvdv
+      MYSQL_DATABASE1: record1
+      MYSQL_DATABASE2: record2
+    ports:
+      - "50052:50052"  # Backend listens on 50052
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # MySQL service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: fdsrwtwdcvdv  # Change to a secure password
+      MYSQL_DATABASE: app_database        # Default database created at startup    
+    ports:
+      - "3306:3306"  # Expose MySQL on port 3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # SQL script to create tables
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  # Envoy Proxy
+  envoy:
+    image: envoyproxy/envoy:v1.22-latest
+    container_name: envoy
+    ports:
+      - "8080:8080"  # Envoy listens on port 8080 for traffic
+      - "9901:9901"  # Admin API for Envoy on port 9901
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml  # Mount custom Envoy config
+    depends_on:
+      - backend
+    environment:
+      - ENVOY_LOG_LEVEL=debug
+
+volumes:
+  mysql-data:
