@@ -1,0 +1,106 @@
+/* Full-screen overlay to block background interaction */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Dark translucent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    padding: 20px; /* Ensures modal visibility on smaller screens */
+    padding-left: 0px;
+  }
+  
+  /* Scrollable Modal */
+  .modal {
+    margin: 0px;
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 450px;
+    max-height: 80vh; /* Prevents modal from being too tall */
+    overflow-y: auto; /* Enables scrolling inside the modal */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+  
+  /* Cross Button (X) */
+  .closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: black;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  /* Modal Title */
+  .modalTitle {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: black;
+    text-align: center;
+  }
+  
+  
+  /* Form Group (Each Input & Label) */
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+    text-align: left;
+  }
+  
+  
+  /* Input Fields */
+  .input {
+    border: none;
+    border-bottom: 2px solid black; /* Only bottom border */
+    padding: 6px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+    color: black;
+  }
+  
+  
+  /* Button Container */
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+
+
+ /* Error Message Box */
+.errorMessage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 0, 0, 0.1); /* Light red background */
+    color: red;
+    padding: 8px 12px;
+    border: 1px solid red;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+  
+  /* Close Button for Error Message */
+  .errorClose {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 14px;
+    cursor: pointer;
+  }

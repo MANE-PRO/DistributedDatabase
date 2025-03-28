@@ -1,0 +1,31 @@
+// proto file: database_service.proto
+syntax = "proto3";
+
+service DatabaseService {
+    rpc AddRecord (RecordRequest) returns (Response);
+    rpc DeleteRecord (RecordRequest) returns (Response);
+    rpc GetRecords (StreamRequest) returns (RecordList);
+}
+
+message RecordRequest {
+    string id = 1;
+    string name = 2;
+}
+
+message Response {
+    bool success = 1;
+    string message = 2;
+}
+
+message StreamRequest {
+    string message=1;
+}
+
+message Record {
+    string id = 1;
+    string name = 2;
+}
+
+message RecordList {
+    repeated Record records = 1;
+}

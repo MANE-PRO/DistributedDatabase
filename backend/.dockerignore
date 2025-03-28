@@ -1,0 +1,9 @@
+build
+*.log
+*.tmp
+*.bak
+Dockerfile
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
